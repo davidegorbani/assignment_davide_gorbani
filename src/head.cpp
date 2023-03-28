@@ -61,7 +61,7 @@ protected:
         bool moved=true;
         // send commands to the robot head to move the correct joint
         // hint: correctly update the moved variable according to the control output
-        // FILL IN THE CODE
+        ipos->positionMove(2, -angle);
 
         return moved;
     }
@@ -77,8 +77,8 @@ protected:
         {
             // get the center of the image
             // hint: class image stores information about its dimensions
-            double center_u=0.0;    //FILL IN THE CODE
-            double center_v=0.0;
+            double center_u=image->height()/2;    //FILL IN THE CODE
+            double center_v=image->width()/2;
 
             // get the rgb pixel of the image center
             // hint: you can use PixelRgb class
@@ -133,6 +133,7 @@ protected:
         // tell the device we aim to control
         // in position mode all the joints
         ienc->getAxes(&nAxes);
+        imod->setControlMode(2,VOCAB_CM_POSITION);
         // FILL IN THE CODE
 
         return true;
@@ -154,6 +155,7 @@ public:
 
         // configure updateModule logic
         go_on=false;
+        updateModule();
 
         return config_ok;
     }
@@ -207,7 +209,7 @@ public:
     {
         // read a bottle containing the angle
         // note: do you want the port to wait or not for an answer?
-        Bottle *angle_bottle;//= FILL IN THE CODE
+        Bottle *angle_bottle = anglePort.read();//= FILL IN THE CODE
 
         // get the information for angle_bottle
         if (angle_bottle!=NULL)
@@ -217,7 +219,16 @@ public:
             // string ("angle") + double
             // how do you read it?
             // FILL IN THE CODE
-            return true;
+            Value val0 = angle_bottle->get(0);
+            if(val0.asString() == "angle"){
+                Value val1 = angle_bottle->get(1);
+                angle = val1.asFloat32();
+                return true;
+            }
+            else{
+                return false;
+            }
+            
         }
 
         return false;
